@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>YouTube Dual Subtitles</title>
+  <link rel="stylesheet" href="popup.css" />
+  <link rel="stylesheet" href="popup-dual.css" />
+</head>
+<body>
+  <header>
+    <h1>YouTube Dual Subtitles</h1>
+    <div id="videoTitle" class="muted"></div>
+    <button id="reviewBtn" class="review-btn" type="button">Review flashcards</button>
+  </header>
+
+  <section id="dual" hidden>
+    <h2>Subtitles on the video</h2>
+    <label class="check big"><input id="dualEnabled" type="checkbox" /> Show dual subtitles</label>
+    <div class="row">
+      <label class="field">Top line <select id="dualTop"></select></label>
+      <label class="field">Bottom line <select id="dualBottom"></select></label>
+      <label class="field">Size
+        <select id="dualSize">
+          <option value="18">Small</option>
+          <option value="22">Medium</option>
+          <option value="28">Large</option>
+        </select>
+      </label>
+    </div>
+    <div id="dualStatus" class="dual-status"></div>
+  </section>
+
+  <section id="controls" hidden>
+    <h2>Transcript</h2>
+    <div class="row">
+      <select id="trackSelect" aria-label="Subtitle language"></select>
+      <select id="translateSelect" aria-label="Translate to">
+        <option value="">No translation</option>
+        <option value="en">English</option>
+        <option value="ko">Korean</option>
+        <option value="es">Spanish</option>
+        <option value="fr">French</option>
+        <option value="de">German</option>
+        <option value="pt">Portuguese</option>
+        <option value="hi">Hindi</option>
+        <option value="ar">Arabic</option>
+        <option value="ja">Japanese</option>
+        <option value="zh-Hans">Chinese (Simplified)</option>
+      </select>
+    </div>
+    <input id="search" type="search" placeholder="Search subtitles…" />
+    <div class="row buttons">
+      <label class="check"><input id="showTimes" type="checkbox" checked /> Timestamps</label>
+      <button id="copyBtn">Copy</button>
+      <button id="txtBtn">.txt</button>
+      <button id="srtBtn">.srt</button>
+    </div>
+  </section>
+
+  <div id="status" class="status">Loading…</div>
+  <ol id="transcript"></ol>
+
+  <script src="cards.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

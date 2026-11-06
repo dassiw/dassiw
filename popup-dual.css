@@ -1,0 +1,23 @@
+h2 { font-size: 13px; margin: 0 0 6px; }
+#dual {
+  padding: 10px; border: 1px solid #e3e3e3; border-radius: 8px; background: #f8faff;
+}
+#dual .check.big { display: flex; gap: 6px; align-items: center; font-weight: 600; margin-bottom: 8px; }
+#dual .field { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: #555; min-width: 0; }
+#dual .field select { width: 100%; }
+.dual-status { min-height: 16px; font-size: 12px; color: #2e7d32; }
+.dual-status.error { color: #b00020; }
+.dual-status.loading { color: #666; }
+@media (prefers-color-scheme: dark) {
+  #dual { background: #20242d; border-color: #333; }
+  #dual .field { color: #aaa; }
+  .dual-status { color: #81c995; }
+  .dual-status.error { color: #f28b82; }
+}
+.review-btn {
+  width: 100%; margin-top: 8px; padding: 8px; font-weight: 600;
+  background: #3ea6ff; color: #06121f; border-color: #3ea6ff;
+}
+.review-btn:hover { background: #65b8ff; }
+.dual-status.warn { color: #b26a00; }
+@media (prefers-color-scheme: dark) { .dual-status.warn { color: #fdd663; } }

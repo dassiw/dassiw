@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flashcards</title>
+  <link rel="stylesheet" href="review.css" />
+</head>
+<body>
+  <header class="top">
+    <h1>Flashcards</h1>
+    <nav class="tabs" role="tablist">
+      <button id="tabStudy" class="tab active" role="tab">Study</button>
+      <button id="tabManage" class="tab" role="tab">Manage</button>
+    </nav>
+    <label class="folder-pick">Folder
+      <select id="folderFilter"></select>
+    </label>
+  </header>
+
+  <main>
+    <section id="studyView">
+      <div id="counts" class="counts"></div>
+
+      <div id="empty" class="panel empty" hidden>
+        <div id="emptyTitle" class="empty-title"></div>
+        <div id="emptyText" class="empty-text"></div>
+      </div>
+
+      <article id="card" class="panel card" hidden>
+        <div class="card-front">
+          <div id="front" class="front"></div>
+          <div id="rom" class="rom"></div>
+        </div>
+        <button id="showBtn" class="show">Show answer <kbd>Space</kbd></button>
+
+        <div id="answer" class="answer" hidden>
+          <div id="back" class="back"></div>
+          <div id="extra" class="extra"></div>
+          <div id="exBox" class="ex-box">
+            <div class="label">Example</div>
+            <div id="exSrc" class="ex-src"></div>
+            <div id="exTr" class="ex-tr"></div>
+          </div>
+          <a id="source" class="source" target="_blank" rel="noopener">Watch this moment on YouTube ↗</a>
+        </div>
+      </article>
+
+      <div id="rate" class="rate" hidden>
+        <button class="rbtn repeat" data-rating="repeat"><kbd>1</kbd><span class="rname">Repeat</span><span class="rint" id="int-repeat"></span></button>
+        <button class="rbtn hard" data-rating="hard"><kbd>2</kbd><span class="rname">Hard</span><span class="rint" id="int-hard"></span></button>
+        <button class="rbtn normal" data-rating="normal"><kbd>3</kbd><span class="rname">Normal</span><span class="rint" id="int-normal"></span></button>
+        <button class="rbtn good" data-rating="good"><kbd>4</kbd><span class="rname">Good</span><span class="rint" id="int-good"></span></button>
+      </div>
+    </section>
+
+    <section id="manageView" hidden>
+      <div class="panel">
+        <h2>Folders</h2>
+        <form id="newFolderForm" class="inline-form">
+          <input id="newFolderName" type="text" maxlength="40" placeholder="New folder name" />
+          <button type="submit">Create folder</button>
+        </form>
+        <ul id="folderList" class="folder-list"></ul>
+      </div>
+
+      <div class="panel">
+        <h2>Cards <span id="cardCount" class="muted"></span></h2>
+        <input id="cardSearch" type="search" placeholder="Search words, meanings, examples…" />
+        <div id="cardTable" class="card-table"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="cards.js"></script>
+  <script src="review.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Dual Subtitles + Flashcards",
+  "version": "1.3.0",
+  "description": "English + Korean subtitles on YouTube. Click a word to see its translation and save it to flashcards you can review with spaced repetition.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://www.youtube.com/*", "https://translate.googleapis.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "YouTube Dual Subtitles",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["cards.js", "content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["bridge.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "minimum_chrome_version": "111"
+}
