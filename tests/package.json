@@ -1,0 +1,11 @@
+{
+  "name": "yt-korean-learning-extension-tests",
+  "private": true,
+  "description": "Automated tests for the extension (run in a simulated browser, no Chrome needed).",
+  "scripts": {
+    "test": "node test-cards.js && node test-unit.js && node test-krdict.js && node test-subtitles.js && node test-ui.js"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0"
+  }
+}

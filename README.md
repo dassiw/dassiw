@@ -41,3 +41,14 @@ The Good counter is per word and is not reset by the other buttons. The next car
 - If tracks stop loading after a YouTube change, `bridge.js` is the file to adjust.
 - YouTube now returns empty subtitle files unless the request carries the player's own access token. The extension borrows that token from the player (`bridge.js`). To get it, it may briefly switch captions on and off in the player the first time you use a video; your previous caption setting is restored. After updating the extension, reload any open YouTube tabs.
 - Dual subtitles need two languages. Order of preference for each line: a real YouTube track, then YouTube's own auto-translation, then **the extension translates the other line itself** (popup shows "machine-translated from English"). Translation starts at the part of the video you are watching and fills in the rest, so lines may appear a few seconds late at first. If the translation service refuses requests, that line shows as unavailable and, if both lines fail, YouTube's own captions come back.
+
+## Tests
+Automated tests run in a simulated browser (jsdom), so Chrome is not needed:
+
+```
+cd tests
+npm install
+npm test
+```
+
+They cover the flashcard timings (1/2/3/4 and the Good ladder), the review page keys, the word card with dictionary meanings, saving to folders, the popup key box, the subtitle token fix, per-language fallbacks and machine translation. YouTube, Google Translate and the dictionary are replaced by fakes, and the dictionary samples in `tests/fixtures.js` follow the documented fields but are not real captures, so a real key still needs the popup's **Save & test** once.
