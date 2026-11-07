@@ -13,6 +13,14 @@ Two subtitle lines on the YouTube player (Korean on top, English below). Click a
 - Close with the X or **Esc**; the video resumes if it was playing before you clicked. Pressing play also closes the card.
 - Korean words are translated to English, other words to Korean.
 
+## Dictionary meanings (한국어기초사전)
+Clicking a Korean word also shows the dictionary entry from the National Institute of Korean Language's learner dictionary: part of speech, vocabulary level (어휘등급: 초급/중급/고급) and numbered meanings with English glosses, plus a link to the full entry. The meanings are saved with the flashcard and shown on the review page.
+1. Get a free key at https://krdict.korean.go.kr/openApi/openApiRegister (needs a login).
+2. Open the extension popup, expand **Dictionary key**, paste the key and press **Save & test**. The test tells you whether the dictionary accepted it.
+- Subtitles use conjugated words, so the extension also tries the basic form (학교에서 → 학교, 가요 → 가다, 했어요 → 하다). Fully irregular verbs (예뻐요 → 예쁘다) are not recognised; the card says no entry was found and you can still save the word.
+- Without a key the card shows a hint and everything else works as before.
+- The key is stored unencrypted in this browser (`chrome.storage.local`) and only sent to krdict.korean.go.kr.
+
 ## Flashcard review page
 Open it from the popup (**Review flashcards**). Pick a folder or "All folders", press **Space** to show the answer, then rate:
 

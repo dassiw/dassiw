@@ -165,8 +165,42 @@ async function initReview() {
   } catch (_) {}
 }
 
+/* ------------------------- Dictionary key (krdict) ------------------------- */
+async function initDict() {
+  const box = $("dictSet"), input = $("krKey"), status = $("krStatus");
+  const say = (msg, cls = "") => { status.textContent = msg; status.className = "dual-status " + cls; };
+  const stored = (await chrome.storage.local.get("krdictKey")).krdictKey;
+  if (stored) { input.placeholder = "Key saved - paste a new one to replace it"; say("A key is saved."); }
+  else box.open = true;
+
+  $("krSave").addEventListener("click", async () => {
+    const key = input.value.trim();
+    if (!key) { say("Paste your key first.", "error"); return; }
+    say("Testing…", "loading");
+    await chrome.storage.local.set({ krdictKey: key });
+    const res = await new Promise((r) => chrome.runtime.sendMessage({ action: "krdict", q: "사람", fresh: true }, r));
+    input.value = "";
+    if (!res || !res.ok) { say(`Saved, but the test failed: ${(res && res.error) || "no answer"}`, "error"); return; }
+    const p = YTKrdict.parse(res.text);
+    if (p.error) say(`The dictionary refused the key: ${p.error}`, "error");
+    else if (!p.entries.length) say("Key accepted, but the test word returned no entry.", "warn");
+    else {
+      const e = p.entries[0];
+      say(`Key works ✓ — ${e.word} (${[e.pos, YTKrdict.gradeOf(e)].filter(Boolean).join(", ")})`);
+      input.placeholder = "Key saved - paste a new one to replace it";
+    }
+  });
+  $("krRemove").addEventListener("click", async () => {
+    await chrome.storage.local.remove("krdictKey");
+    input.value = "";
+    input.placeholder = "Paste your API key";
+    say("Key removed.");
+  });
+}
+
 async function init() {
-  initReview(); // works on any page, not only on YouTube
+  initReview();
+  initDict(); // works on any page, not only on YouTube
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab || !/^https:\/\/www\.youtube\.com\/watch/.test(tab.url || "")) {
     setStatus("Open a YouTube video (youtube.com/watch…) and click the extension again.", true);
@@ -178,7 +212,7 @@ async function init() {
   let ping = await send({ action: "ping" });
   if (!ping.ok) {
     try {
-      await chrome.scripting.executeScript({ target: { tabId }, files: ["cards.js", "content.js"] });
+      await chrome.scripting.executeScript({ target: { tabId }, files: ["cards.js", "krdict.js", "content.js"] });
       await chrome.scripting.executeScript({ target: { tabId }, files: ["bridge.js"], world: "MAIN" });
       ping = await send({ action: "ping" });
     } catch (_) {}

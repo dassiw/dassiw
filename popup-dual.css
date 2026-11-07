@@ -21,3 +21,10 @@ h2 { font-size: 13px; margin: 0 0 6px; }
 .review-btn:hover { background: #65b8ff; }
 .dual-status.warn { color: #b26a00; }
 @media (prefers-color-scheme: dark) { .dual-status.warn { color: #fdd663; } }
+.dict-set { margin: 8px 0; padding: 8px 10px; border: 1px solid #e3e3e3; border-radius: 8px; }
+.dict-set summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+.dict-set .row input { flex: 1; width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; font: inherit; }
+.dict-set .wrap { white-space: normal; margin: 6px 0; }
+@media (prefers-color-scheme: dark) { .dict-set { border-color: #333; } .dict-set .row input { background: #2a2a2a; color: #eee; border-color: #444; } }
+.dict-set .steps { margin: 6px 0 8px; padding-left: 20px; font-size: 12px; line-height: 1.45; }
+.dict-set .steps li { margin-bottom: 4px; }

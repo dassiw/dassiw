@@ -13,6 +13,27 @@
     <button id="reviewBtn" class="review-btn" type="button">Review flashcards</button>
   </header>
 
+  <details id="dictSet" class="dict-set">
+    <summary>Dictionary key (한국어기초사전)</summary>
+    <p class="muted wrap">A free key from the National Institute of Korean Language lets the word card show the part of speech, vocabulary level (어휘등급) and numbered meanings. You only need to do this once.</p>
+    <ol class="steps">
+      <li>Open the <a href="https://krdict.korean.go.kr/openApi/openApiRegister" target="_blank" rel="noopener">key page (한국어기초사전 Open API)</a>. The site is in Korean; use your browser's translate option if you need it.</li>
+      <li>Sign up (an email address is enough) and log in.</li>
+      <li>Apply for an API key (인증키) for the dictionary's Open API. A short description such as "personal Korean study" is fine.</li>
+      <li>Copy the key it gives you.</li>
+      <li>Paste it below and press <b>Save &amp; test</b>. You should see "Key works".</li>
+    </ol>
+    <p class="muted wrap">The page layout may change. If a step looks different, look for the Open API / 오픈 API section and the key request (인증키 신청). If the test says the key was refused, wait a few minutes after getting it and try again.</p>
+    <div class="row">
+      <input id="krKey" type="password" placeholder="Paste your API key" autocomplete="off" spellcheck="false" />
+    </div>
+    <div class="row">
+      <button id="krSave" type="button">Save &amp; test</button>
+      <button id="krRemove" type="button">Remove key</button>
+    </div>
+    <div id="krStatus" class="dual-status"></div>
+  </details>
+
   <section id="dual" hidden>
     <h2>Subtitles on the video</h2>
     <label class="check big"><input id="dualEnabled" type="checkbox" /> Show dual subtitles</label>
@@ -61,6 +82,7 @@
   <ol id="transcript"></ol>
 
   <script src="cards.js"></script>
+  <script src="krdict.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

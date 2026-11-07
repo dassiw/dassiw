@@ -85,6 +85,34 @@ async function translateLines(texts, sl, tl) {
   return lines;
 }
 
+/* ---- 한국어기초사전 (Korean Learners' Dictionary) official API ---- */
+const krCache = new Map();
+
+// Returns the raw XML. The key is read from storage here, so pages never see it.
+async function krdictFetch(q, fresh) {
+  const stored = await chrome.storage.local.get("krdictKey");
+  const key = String((stored && stored.krdictKey) || "").trim();
+  if (!key) {
+    const e = new Error("No dictionary key set");
+    e.noKey = true;
+    throw e;
+  }
+  const word = String(q || "").slice(0, 40);
+  if (!fresh && krCache.has(word)) return krCache.get(word);
+  const params = new URLSearchParams({
+    key, q: word, part: "word", translated: "y", trans_lang: "1", // 1 = English
+    advanced: "y", method: "exact", num: "10",
+  });
+  const res = await fetch("https://krdict.korean.go.kr/api/search?" + params.toString());
+  if (!res.ok) throw new Error(`Dictionary returned HTTP ${res.status}`);
+  const text = await res.text();
+  if (!/<error>/.test(text)) {
+    if (krCache.size > 300) krCache.delete(krCache.keys().next().value);
+    krCache.set(word, text);
+  }
+  return text;
+}
+
 if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
   chrome.runtime.onMessage.addListener((req, _sender, sendResponse) => {
     if (!req) return false;
@@ -93,6 +121,12 @@ if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage)
         .then((result) => sendResponse({ ok: true, ...result }))
         .catch((err) => sendResponse({ ok: false, error: err.message || "Translation failed." }));
       return true; // async response
+    }
+    if (req.action === "krdict") {
+      krdictFetch(req.q, !!req.fresh)
+        .then((text) => sendResponse({ ok: true, text }))
+        .catch((err) => sendResponse({ ok: false, error: err.message || "Dictionary lookup failed", noKey: !!err.noKey }));
+      return true;
     }
     if (req.action === "translateBatch") {
       const texts = Array.isArray(req.texts) ? req.texts.slice(0, 60) : [];
@@ -105,4 +139,4 @@ if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage)
   });
 }
 
-if (typeof module !== "undefined" && module.exports) module.exports = { parseTranslateResponse, translateLines };
+if (typeof module !== "undefined" && module.exports) module.exports = { parseTranslateResponse, translateLines, krdictFetch };

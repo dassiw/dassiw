@@ -98,3 +98,4 @@ kbd {
   .front { font-size: 34px; }
   .rate { grid-template-columns: repeat(2, 1fr); }
 }
+#extra { white-space: pre-line; text-align: left; }

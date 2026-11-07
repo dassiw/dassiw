@@ -222,6 +222,13 @@
       .ytsub-c-ex{font-size:15px;}
       .ytsub-c-ex2{font-size:13px;color:#aeb6c2;margin-top:2px;}
       .ytsub-c-more div{font-size:13px;color:#cfd5de;margin-top:2px;}
+      .ytsub-c-dhead{font-weight:600;font-size:15px;margin-top:8px;}
+      .ytsub-c-dhead .pos{font-weight:400;color:#b8c0cc;font-size:13px;margin-left:6px;}
+      .ytsub-c-grade{display:inline-block;padding:0 7px;border-radius:9px;background:#26405f;color:#9cc7ff;font-size:11px;font-weight:600;margin-left:8px;}
+      .ytsub-c-sense{font-size:13px;margin-top:3px;color:#d6dbe3;}
+      .ytsub-c-gloss{color:#8fb7ff;}
+      .ytsub-c-dnote{font-size:12px;color:#9aa4b2;margin-top:4px;}
+      .ytsub-c-dlink{font-size:12px;color:#8ab4f8;text-decoration:none;}
       .ytsub-hl{background:#ffd54f;color:#111;border-radius:3px;padding:0 2px;}
       .ytsub-c-save{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
       .ytsub-c-save select,.ytsub-c-save input{flex:1;min-width:120px;padding:6px 8px;border-radius:6px;
@@ -583,6 +590,8 @@
 
     const trans = el("div", "ytsub-c-trans", "Translating…");
     const defsEl = el("div", "ytsub-c-defs");
+    const dictSec = el("div", "ytsub-c-sec ytsub-c-dict");
+    dictSec.hidden = true;
 
     const exSec = el("div", "ytsub-c-sec");
     const exSrc = el("div", "ytsub-c-ex");
@@ -606,7 +615,7 @@
     saveRow.append(folderSel, newInput, addBtn);
     const msg = el("div", "ytsub-c-msg");
 
-    root.append(head, trans, defsEl, exSec, moreSec, saveRow, msg);
+    root.append(head, trans, defsEl, dictSec, exSec, moreSec, saveRow, msg);
     player.appendChild(root);
     wordEl.classList.add("ytsub-sel");
 
@@ -618,6 +627,8 @@
     let result = null; // translation payload from the background worker
     let ready = false; // translation attempt finished (success or failure)
     let data = null;   // flashcard storage snapshot
+    let dictDone = !isKo; // dictionary lookup finished (only Korean words have one)
+    let dictText = "";    // dictionary meanings, saved with the card
 
     function fillFolders(selectedId) {
       folderSel.textContent = "";
@@ -630,7 +641,7 @@
       const isNew = folderSel.value === NEW_FOLDER;
       newInput.hidden = !isNew;
       const dup = !isNew && data && YTCards.findCard(data.cards, front, folderSel.value);
-      addBtn.disabled = !ready || !!dup;
+      addBtn.disabled = !ready || !dictDone || !!dup;
       addBtn.textContent = dup ? "✓ Already saved here" : "Add to flashcards";
     }
 
@@ -654,7 +665,7 @@
           front,
           back: result ? result.translation : "",
           romanization: result && result.romanization !== word ? result.romanization : "",
-          extra: defsText,
+          extra: dictText || defsText,
           example: sentence,
           exampleTr: otherText,
           lang: isKo ? "ko" : "other",
@@ -707,6 +718,57 @@
       }
       refreshSaveState();
     });
+
+    // Dictionary meanings (Korean words only): 품사, 어휘등급, numbered definitions.
+    function renderDict(r) {
+      dictSec.hidden = false;
+      dictSec.textContent = "";
+      dictSec.appendChild(el("div", "ytsub-c-label", "Dictionary · 한국어기초사전"));
+      if (!r.ok) {
+        dictSec.appendChild(el("div", "ytsub-c-dnote", r.noKey
+          ? "Meanings need a free dictionary key. Click the extension icon → “Dictionary key” for the steps (takes a few minutes, once)."
+          : `Dictionary unavailable (${r.error}).`));
+        return;
+      }
+      if (!r.entries.length) {
+        dictSec.appendChild(el("div", "ytsub-c-dnote", "No dictionary entry found for this word."));
+        return;
+      }
+      if (r.matched && r.matched !== word) {
+        dictSec.appendChild(el("div", "ytsub-c-dnote", `Basic form: ${r.matched}`));
+      }
+      r.entries.slice(0, 3).forEach((e) => {
+        const h = el("div", "ytsub-c-dhead", e.word);
+        if (e.pos) h.appendChild(el("span", "pos", e.pos));
+        const g = YTKrdict.gradeOf(e);
+        if (g) h.appendChild(el("span", "ytsub-c-grade", `어휘등급 ${g}`));
+        dictSec.appendChild(h);
+        e.senses.slice(0, 5).forEach((s) => {
+          const line = el("div", "ytsub-c-sense", `${s.order}. ${s.definition}`);
+          if (s.transWord) line.appendChild(el("span", "ytsub-c-gloss", ` — ${s.transWord}`));
+          dictSec.appendChild(line);
+        });
+        if (e.link) {
+          const a = el("a", "ytsub-c-dlink", "Open in dictionary ↗");
+          a.href = e.link;
+          a.target = "_blank";
+          a.rel = "noopener";
+          dictSec.appendChild(a);
+        }
+      });
+      dictText = YTKrdict.toText(r.entries);
+    }
+
+    if (isKo) {
+      const finish = () => { dictDone = true; refreshSaveState(); };
+      const cap = setTimeout(finish, 3500); // never keep the Add button waiting for long
+      YTKrdict.lookup(word).then((r) => {
+        clearTimeout(cap);
+        if (card !== me) return;
+        renderDict(r);
+        finish();
+      });
+    }
 
     // Only one subtitle line is on screen: translate the sentence for the example.
     if (!otherText && sentence) {
