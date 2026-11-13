@@ -196,6 +196,28 @@ html, body {
   line-height: 1.45;
   text-align: center;
 }
+.video-shot {
+  margin-top: 14px;
+  text-align: center;
+}
+.video-shot img {
+  display: block;
+  width: 100%;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  margin-bottom: 8px;
+}
+.video-shot img[hidden],
+.video-shot[hidden],
+.save-row[hidden] { display: none; }
+.video-shot a {
+  font-size: 13px;
+  font-weight: 600;
+  color: #5d4037;
+  text-decoration: none;
+}
+.video-shot a:hover { text-decoration: underline; }
+
 .tip::before {
   content: "Tip: ";
   font-weight: 700;

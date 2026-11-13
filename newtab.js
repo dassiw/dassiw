@@ -1,5 +1,6 @@
-// New tab mini lesson. Shares flashcard storage (YTCards) with the YouTube extension,
-// so words saved here appear in the Review page with the same 1-4 buttons.
+// New tab mini lesson. Shares flashcard storage (YTCards) with the YouTube extension.
+// The lesson deck mixes the built-in words with Korean words saved from YouTube videos
+// (those keep the video sentence, a screenshot of the moment, and a link back to the video).
 
 // ---------- Clock ----------
 function tick() {
@@ -14,20 +15,83 @@ function tick() {
 tick();
 setInterval(tick, 1000);
 
-// ---------- Lesson progression: one new word per new tab ----------
-const PROGRESS_KEY = "hangulNewTab.nextIndex";
-const index = parseInt(localStorage.getItem(PROGRESS_KEY) || "0", 10) % WORDS.length;
-localStorage.setItem(PROGRESS_KEY, String(index + 1));
-const word = WORDS[index];
+// ---------- Element handles ----------
+const $ = (id) => document.getElementById(id);
+const folderSelect = $("folderSelect");
+const saveBtn = $("saveBtn");
+const saveStatus = $("saveStatus");
+const saveRow = $("saveRow");
 
-document.getElementById("progress").textContent = `word ${index + 1} of ${WORDS.length}`;
-document.getElementById("hangul").textContent = word.hangul;
-document.getElementById("romanization").textContent = `[${word.romanization}]`;
-document.getElementById("pos").textContent = word.pos;
-document.getElementById("meaning").textContent = word.meaning;
-document.getElementById("sentenceKo").textContent = word.sentence_ko;
-document.getElementById("sentenceEn").textContent = word.sentence_en;
-document.getElementById("tip").textContent = word.tip;
+// ---------- Build the lesson deck ----------
+// Built-in words and video words alternate, so both show up regularly.
+function videoWordsFrom(cards) {
+  return cards
+    .filter((c) => c.videoId && c.lang === "ko")
+    .sort((a, b) => b.created - a.created)
+    .map((c) => ({
+      hangul: c.front,
+      romanization: c.romanization || "",
+      pos: "from video",
+      meaning: c.back || "(saved from a video)",
+      sentence_ko: c.example || "",
+      sentence_en: c.exampleTr || "",
+      tip: c.extra ? "Other meanings: " + c.extra : "You saved this word while watching a video.",
+      keywords: "",
+      isVideo: true,
+      screenshot: c.screenshot || "",
+      videoId: c.videoId,
+      videoTime: c.videoTime || 0
+    }));
+}
+
+function interleave(a, b) {
+  const out = [];
+  const n = Math.max(a.length, b.length);
+  for (let i = 0; i < n; i++) {
+    if (i < a.length) out.push(a[i]);
+    if (i < b.length) out.push(b[i]);
+  }
+  return out;
+}
+
+const PROGRESS_KEY = "hangulNewTab.nextIndex";
+let deck = WORDS.slice();
+let word = null;
+
+// ---------- Rendering one lesson word ----------
+function renderWord(index) {
+  word = deck[index];
+  $("progress").textContent = `word ${index + 1} of ${deck.length}`;
+  $("hangul").textContent = word.hangul;
+  $("romanization").textContent = word.romanization ? `[${word.romanization}]` : "";
+  $("pos").textContent = word.pos;
+  $("meaning").textContent = word.meaning;
+  $("sentenceKo").textContent = word.sentence_ko;
+  $("sentenceEn").textContent = word.sentence_en;
+  $("tip").textContent = word.tip;
+
+  // Video words already live in your flashcards, so hide the save row for them.
+  saveRow.hidden = !!word.isVideo;
+  saveStatus.textContent = "";
+
+  const shot = $("videoShot");
+  if (word.isVideo) {
+    shot.hidden = false;
+    const img = $("shotImg");
+    img.hidden = !word.screenshot;
+    img.src = word.screenshot || "";
+    const link = $("shotLink");
+    link.href = `https://www.youtube.com/watch?v=${encodeURIComponent(word.videoId)}&t=${Math.floor(word.videoTime)}s`;
+  } else {
+    shot.hidden = true;
+  }
+  loadBackground();
+}
+
+// ---------- Lesson progression: one new word per new tab ----------
+function currentIndex() {
+  return parseInt(localStorage.getItem(PROGRESS_KEY) || "0", 10) % deck.length;
+}
 
 // ---------- Native Korean pronunciation (browser text-to-speech) ----------
 let koVoice = null;
@@ -43,6 +107,7 @@ if (window.speechSynthesis) {
 }
 
 function speak(text, button) {
+  if (!text) return;
   if (!("speechSynthesis" in window)) {
     alert("Your browser does not support speech output.");
     return;
@@ -60,16 +125,10 @@ function speak(text, button) {
   window.speechSynthesis.speak(utter);
 }
 
-document.getElementById("speakWord").addEventListener("click", e =>
-  speak(word.hangul, e.currentTarget));
-document.getElementById("speakSentence").addEventListener("click", e =>
-  speak(word.sentence_ko, e.currentTarget));
+$("speakWord").addEventListener("click", e => speak(word.hangul, e.currentTarget));
+$("speakSentence").addEventListener("click", e => speak(word.sentence_ko, e.currentTarget));
 
-// ---------- Flashcards: save this word to a folder ----------
-const folderSelect = document.getElementById("folderSelect");
-const saveBtn = document.getElementById("saveBtn");
-const saveStatus = document.getElementById("saveStatus");
-
+// ---------- Flashcards: save a built-in word to a folder ----------
 async function initFolders() {
   const data = await YTCards.load();
   data.folders.forEach(f => folderSelect.add(new Option(f.name, f.id)));
@@ -78,6 +137,7 @@ async function initFolders() {
 }
 
 async function saveWord() {
+  if (!word || word.isVideo) return;
   saveBtn.disabled = true;
   try {
     const { duplicate } = await YTCards.addCard({
@@ -90,9 +150,7 @@ async function saveWord() {
       lang: "ko",
       folderId: folderSelect.value
     });
-    saveStatus.textContent = duplicate
-      ? "Already in that folder."
-      : "Saved to flashcards.";
+    saveStatus.textContent = duplicate ? "Already in that folder." : "Saved to flashcards.";
   } catch (err) {
     saveStatus.textContent = "Could not save: " + (err.message || err);
   } finally {
@@ -101,23 +159,41 @@ async function saveWord() {
 }
 
 saveBtn.addEventListener("click", saveWord);
-initFolders();
 
 // Keyboard shortcuts: 1 = word, 2 = sentence, 3 = add to flashcards
 document.addEventListener("keydown", e => {
   if (e.target.tagName === "SELECT") return;
-  if (e.key === "1") speak(word.hangul, document.getElementById("speakWord"));
-  if (e.key === "2") speak(word.sentence_ko, document.getElementById("speakSentence"));
+  if (!word) return;
+  if (e.key === "1") speak(word.hangul, $("speakWord"));
+  if (e.key === "2") speak(word.sentence_ko, $("speakSentence"));
   if (e.key === "3") saveWord();
 });
 
 // ---------- Random related background photo ----------
 function loadBackground() {
-  const bg = document.getElementById("bg");
-  const url = `https://loremflickr.com/1920/1080/${word.keywords}?random=${Math.floor(Math.random() * 1e6)}`;
+  const bg = $("bg");
+  const keywords = word.keywords || "korea,language,city";
+  const url = `https://loremflickr.com/1920/1080/${keywords}?random=${Math.floor(Math.random() * 1e6)}`;
   const img = new Image();
   img.onload = () => { bg.style.backgroundImage = `url("${url}")`; };
   img.onerror = () => { bg.style.backgroundImage = ""; }; // keep gradient fallback
   img.src = url;
 }
-loadBackground();
+
+// ---------- Start ----------
+async function init() {
+  let videoWords = [];
+  try {
+    const data = await YTCards.load();
+    videoWords = videoWordsFrom(data.cards);
+  } catch (_err) {
+    videoWords = [];
+  }
+  deck = interleave(WORDS, videoWords);
+  const index = currentIndex();
+  localStorage.setItem(PROGRESS_KEY, String(index + 1));
+  renderWord(index);
+}
+
+init();
+initFolders();

@@ -165,6 +165,7 @@
         lang: fields.lang || "",
         videoId: fields.videoId || "",
         videoTime: Math.floor(fields.videoTime || 0),
+        screenshot: fields.screenshot || "", // JPEG data URL of the video moment (video cards)
         folderId,
         created: now,
         due: now, // new cards are due immediately
