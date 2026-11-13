@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Hangul New Tab",
+  "version": "1.0.0",
+  "description": "Turns every new tab into a mini Korean lesson with native pronunciation and a random related background photo.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": ["storage"]
+}

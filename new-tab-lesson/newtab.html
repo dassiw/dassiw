@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hangul</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="bg" class="bg"></div>
+
+  <div class="clock">
+    <div id="time">--:--</div>
+    <div id="date"></div>
+  </div>
+
+  <main class="card" id="card">
+    <div class="header">
+      <div class="label">mini lesson</div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="steps">
+      <span class="step active">1 Listen</span>
+      <span class="step">2 Say it</span>
+      <span class="step">3 Use it</span>
+    </div>
+
+    <div class="hangul-row">
+      <div class="hangul" id="hangul"></div>
+      <button class="speak" id="speakWord" title="Hear the word">&#128266;</button>
+    </div>
+
+    <div class="meta">
+      <span id="romanization"></span>
+      <span class="pos" id="pos"></span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="meaning" id="meaning"></div>
+
+    <div class="sentence-box">
+      <div class="sentence-row">
+        <div class="sentence-ko" id="sentenceKo"></div>
+        <button class="speak small" id="speakSentence" title="Hear the sentence">&#128266;</button>
+      </div>
+      <div class="sentence-en" id="sentenceEn"></div>
+    </div>
+
+    <div class="tip" id="tip"></div>
+
+    <div class="footer" id="footer">Great job! Open a new tab for your next word.</div>
+  </main>
+
+  <script src="words.js"></script>
+  <script src="newtab.js"></script>
+</body>
+</html>
