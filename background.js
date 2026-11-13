@@ -101,6 +101,19 @@ if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage)
         .catch((err) => sendResponse({ ok: false, error: err.message || "Translation failed." }));
       return true;
     }
+    if (req.action === "captureTab") {
+      // Screenshot of the visible YouTube tab, used for video flashcards.
+      // Needs the youtube.com host permission (already in the manifest).
+      const windowId = _sender && _sender.tab ? _sender.tab.windowId : undefined;
+      chrome.tabs.captureVisibleTab(windowId, { format: "jpeg", quality: 90 }, (dataUrl) => {
+        if (chrome.runtime.lastError || !dataUrl) {
+          sendResponse({ ok: false, error: (chrome.runtime.lastError && chrome.runtime.lastError.message) || "No image." });
+        } else {
+          sendResponse({ ok: true, dataUrl });
+        }
+      });
+      return true;
+    }
     return false;
   });
 }

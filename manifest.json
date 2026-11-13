@@ -6,7 +6,7 @@
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "unlimitedStorage"],
   "host_permissions": ["https://www.youtube.com/*", "https://translate.googleapis.com/*"],
   "background": {
     "service_worker": "background.js"

@@ -614,6 +614,43 @@
     card = me;
     video.addEventListener("play", me.onPlay);
 
+    /* ---- video frame capture (for video flashcards) ---- */
+    // Hides the given elements, asks the background worker for a screenshot of the
+    // visible tab, then crops it to the video player. Returns a JPEG data URL, or "".
+    async function captureVideoFrame(vid, hideEls) {
+      hideEls.forEach((e) => { e.style.visibility = "hidden"; });
+      try {
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const res = await chrome.runtime.sendMessage({ action: "captureTab" });
+        if (!res || !res.ok || !res.dataUrl) return "";
+        const img = await new Promise((resolve, reject) => {
+          const i = new Image();
+          i.onload = () => resolve(i);
+          i.onerror = reject;
+          i.src = res.dataUrl;
+        });
+        // Screenshot pixels per CSS pixel of the viewport.
+        const s = img.naturalWidth / window.innerWidth;
+        const rect = vid.getBoundingClientRect();
+        const sx = Math.max(0, rect.left * s);
+        const sy = Math.max(0, rect.top * s);
+        const sw = Math.min(img.naturalWidth - sx, rect.width * s);
+        const sh = Math.min(img.naturalHeight - sy, rect.height * s);
+        if (sw < 10 || sh < 10) return "";
+        const outW = Math.min(480, Math.round(sw));
+        const outH = Math.round(sh * (outW / sw));
+        const canvas = document.createElement("canvas");
+        canvas.width = outW;
+        canvas.height = outH;
+        canvas.getContext("2d").drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+        return canvas.toDataURL("image/jpeg", 0.75);
+      } catch (_err) {
+        return "";
+      } finally {
+        hideEls.forEach((e) => { e.style.visibility = ""; });
+      }
+    }
+
     /* ---- lookup state ---- */
     let result = null; // translation payload from the background worker
     let ready = false; // translation attempt finished (success or failure)
@@ -650,7 +687,12 @@
         const defsText = result
           ? result.defs.map((d) => (d.pos ? d.pos + ": " : "") + d.terms.join(", ")).join(" · ")
           : "";
+        // Screenshot of the paused video moment for Korean words (the card itself is hidden while capturing).
+        const screenshot = isKo && !(data && YTCards.findCard(data.cards, front, folderId))
+          ? await captureVideoFrame(video, [root])
+          : "";
         const r = await YTCards.addCard({
+          screenshot,
           front,
           back: result ? result.translation : "",
           romanization: result && result.romanization !== word ? result.romanization : "",
