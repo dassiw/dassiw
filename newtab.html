@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hangul</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="newtab.css">
 </head>
 <body>
   <div id="bg" class="bg"></div>
@@ -28,7 +28,7 @@
 
     <div class="hangul-row">
       <div class="hangul" id="hangul"></div>
-      <button class="speak" id="speakWord" title="Hear the word">&#128266;</button>
+      <button class="speak" id="speakWord" title="Hear the word (key 1)">&#128266;</button>
     </div>
 
     <div class="meta">
@@ -43,17 +43,24 @@
     <div class="sentence-box">
       <div class="sentence-row">
         <div class="sentence-ko" id="sentenceKo"></div>
-        <button class="speak small" id="speakSentence" title="Hear the sentence">&#128266;</button>
+        <button class="speak small" id="speakSentence" title="Hear the sentence (key 2)">&#128266;</button>
       </div>
       <div class="sentence-en" id="sentenceEn"></div>
     </div>
 
     <div class="tip" id="tip"></div>
 
+    <div class="save-row">
+      <select id="folderSelect" title="Flashcard folder"></select>
+      <button class="save-btn" id="saveBtn" title="Add to flashcards (key 3)">+ Flashcards</button>
+    </div>
+    <div class="save-status" id="saveStatus"></div>
+
     <div class="footer" id="footer">Great job! Open a new tab for your next word.</div>
   </main>
 
-  <script src="words.js"></script>
+  <script src="lesson-words.js"></script>
+  <script src="cards.js"></script>
   <script src="newtab.js"></script>
 </body>
 </html>

@@ -7,6 +7,11 @@ Two subtitle lines on the YouTube player (Korean on top, English below). Click a
 2. Remove the older version of this extension, then click **Load unpacked** and select this folder.
 3. Open a YouTube video with subtitles, click the extension icon and tick **Show dual subtitles**.
 
+## New tab Korean lesson
+Every new tab shows one Korean word from a 20-word lesson deck: Hangul, romanization, meaning, native pronunciation (press the speaker buttons, or keys **1** for the word and **2** for the sentence), an example sentence, a usage tip and a random background photo. Each new tab moves to the next word.
+
+Press **+ Flashcards** (or key **3**) to save the word to a folder you choose. Saved words are reviewed on the Review page with the same 1-4 buttons as the rest of your cards.
+
 ## Click a word
 - The video pauses and a card shows the word, romanization (Korean), translation, other meanings, the sentence it appeared in (both languages) and extra examples.
 - Pick a folder (or **New folder...**) and press **Add to flashcards**.
